@@ -1,11 +1,67 @@
 require(xgboost)
-data <- read.csv("~/Dropbox/shared_workspace/otto-group-product-classification/src/main/resources/train.csv")
-testPercentage = 0.3;
+require(methods)
 
-theData<-sparse.model.matrix(target~., data = data[-1])
-label <- data[[95]];
+train = read.csv('~/Dropbox/otto/train.csv',header=TRUE,stringsAsFactors = F)
+test = read.csv('~/Dropbox/otto/test.csv',header=TRUE,stringsAsFactors = F)
+trainCopy<-train[,-1]
+testCopy<-test[,-1]
+nzv <- nearZeroVar(trainCopy)
+trainCopy <- trainCopy[, -nzv]
+testCopy <- testCopy[, -nzv]
 
-testsize<-floor(testPercentage*length(label));
-weight <- as.numeric(data[[94]]) * testsize / length(label);
+y = trainCopy[,ncol(trainCopy)]
+y = gsub('Class_','',y)
+y = as.integer(y)-1 #xgboost take features in [0,numOfClass)
 
-xgmat <- xgb.DMatrix(theData, label = label, weight = weight, missing = -999.0)
+x = rbind(trainCopy[,-ncol(trainCopy)],testCopy)
+x = as.matrix(x)
+x = matrix(as.numeric(x),nrow(x),ncol(x))
+trind = 1:length(y)
+teind = (nrow(trainCopy)+1):nrow(x)
+
+# Set necessary parameter
+param <- list("objective" = "multi:softprob",
+              "eta" = 0.25,
+              "eval_metric" = "mlogloss",
+              "num_class" = 9,
+              "nthread" = 8)
+runCrossValidation()
+# Run Cross Valication
+preprocess <- function(x){
+  datExpr <- x[trind,]
+  #datExpr = log(1+datExpr);
+  datExpr <- scale(datExpr, center = TRUE, scale = FALSE)
+  variancedatExpr <- apply( datExpr,2,var, na.rm=T)
+  datExpr<-x[trind,variancedatExpr >= 0.3]
+  datExpr <- log(1+datExpr)
+  datExpr;
+}
+runCrossValidation <- function(){
+  cv.nround = 160
+  #datExpr<-preprocess(x);
+  datExpr <- x[trind,]
+  bst.cv = xgb.cv(param=param, data = datExpr, label = y, 
+                  nfold = 3, nrounds=cv.nround)
+  #bst;
+}
+# Train the model
+trainModel<- function(){
+  nround = 160
+  datExpr<-preprocess(x);
+  bst = xgboost(param=param, data = datExpr, label = y, nrounds=nround)
+  bst;
+}
+# Make prediction
+makePrediction <- function(){
+  pred = predict(bst,datExpr)
+  pred = matrix(pred,9,length(pred)/9)
+  pred = t(pred)
+  pred;
+}
+# Output submission
+outputSubmission <- function(){
+  pred = format(pred, digits=2,scientific=F) # shrink the size of submission
+  pred = data.frame(1:nrow(pred),pred)
+  names(pred) = c('id', paste0('Class_',1:9))
+  write.csv(pred,file='~/Dropbox/otto/submission69.csv', quote=FALSE,row.names=FALSE) 
+}
