@@ -36,6 +36,12 @@ preprocess <- function(x){
   datExpr <- log(1+datExpr)
   datExpr;
 }
+preprocess2<-function(x){
+  rows = sample(1:nrow(x), nrow(x)/2, replace = TRUE)
+  training<-x[rows,]
+  preProcValues <- preProcess(training, method = c("center", "scale"))
+  trainTransformed <- predict(preProcValues, x)
+}
 runCrossValidation <- function(){
   cv.nround = 160
   #datExpr<-preprocess(x);
