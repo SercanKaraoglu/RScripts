@@ -9,9 +9,11 @@ train = read.csv(trainDir,header=TRUE,stringsAsFactors = F)
 test = read.csv(testDir,header=TRUE,stringsAsFactors = F)
 trainCopy<-train[,-1]
 testCopy<-test[,-1]
-nzv <- nearZeroVar(trainCopy)
-trainCopy <- trainCopy[, -nzv]
-testCopy <- testCopy[, -nzv]
+
+# Find zero variances
+# nzv <- nearZeroVar(trainCopy)
+# trainCopy <- trainCopy[, -nzv]
+# testCopy <- testCopy[, -nzv]
 
 y = trainCopy[,ncol(trainCopy)]
 y = gsub('Class_','',y)
