@@ -35,3 +35,4 @@ fit <- h2o.ensemble(x = predictors,
 
 otto.predict<-predict(object = fit,newdata = validation_split)
 h2o.confusionMatrix(data = otto.predict[,1],reference = validation_split$target)
+
