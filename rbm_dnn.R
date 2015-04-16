@@ -1,3 +1,5 @@
+require(caret)
+require(deepnet)
 otto_dir<-'/Dropbox/otto'
 trainDir <- paste0(path.expand("~"),otto_dir,'/train.csv')
 testDir <- paste0(path.expand("~"),otto_dir,'/test.csv')
