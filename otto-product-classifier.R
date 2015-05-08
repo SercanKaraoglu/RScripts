@@ -62,7 +62,7 @@ preprocess2<-function(x){
 runCrossValidation <- function(){
   cv.nround = 200
   #datExpr<-preprocess(x);
-  datExpr <- x[trind,]
+  datExpr <- xTrain
   bst.cv = xgb.cv(param=param, data = datExpr, label = y, 
                   nfold = 5, nrounds=cv.nround)
   #bst;
