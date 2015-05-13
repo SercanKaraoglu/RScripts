@@ -35,10 +35,10 @@ valid_holdout.hex <- h2o.assign(train.hex[rnd>=0.8,], "valid_holdout.hex")
 
 h2o.gradientBoostedMachine.1 <- function(..., n.trees=42,interaction.depth=10,n.minobsinnode=10,shrinkage=0.175) h2o.gbm.wrapper(...,n.trees=n.trees,interaction.depth=interaction.depth,n.minobsinnode=n.minobsinnode,shrinkage=shrinkage)
 h2o.randomForest.1 <- function(..., ntree = 1000, nbins = 100, seed = 1) h2o.randomForest.wrapper(..., ntree = ntree, nbins = nbins, seed = seed)
-h2o.deeplearning.1 <- function(..., hidden = c(500,500), activation = "Rectifier", seed = 1)  h2o.deeplearning.wrapper(..., hidden = hidden, activation = activation, seed = seed)
-h2o.deeplearning.2 <- function(..., hidden = c(200,200,200), activation = "Tanh", seed = 1)  h2o.deeplearning.wrapper(..., hidden = hidden, activation = activation, seed = seed)
+#h2o.deeplearning.1 <- function(..., hidden = c(512,512,512,512), activation = "Rectifier", seed = 1)  h2o.deeplearning.wrapper(..., hidden = hidden, activation = activation, seed = seed)
 
-learner <- c("h2o.gradientBoostedMachine.1","h2o.randomForest.1", "h2o.deeplearning.1", "h2o.deeplearning.2")
+#learner <- c("h2o.gradientBoostedMachine.1","h2o.randomForest.1", "h2o.deeplearning.1")
+learner <- c("h2o.gradientBoostedMachine.1","h2o.randomForest.1")
 family <- "binomial"
 
 # Train the ensemble using 4-fold CV to generate level-one data
