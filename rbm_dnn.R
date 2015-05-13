@@ -1,5 +1,5 @@
-require(caret)
 require(deepnet)
+
 otto_dir<-'/Dropbox/otto'
 trainDir <- paste0(path.expand("~"),otto_dir,'/train.csv')
 testDir <- paste0(path.expand("~"),otto_dir,'/test.csv')
@@ -35,6 +35,9 @@ rbm2<-newRBM(93, 93, batchSize = 93, ff = FALSE,genWeightFunc = generateWeights)
 trainRBM2<-trainRBM(rbm2,trainData=rbm1@weights,maxEpoch=5,numCD=10)
 rbm3<-newRBM(93, 93, batchSize = 93, ff = FALSE,genWeightFunc = generateWeights)
 trainRBM3<-trainRBM(rbm3,trainData=rbm2@weights,maxEpoch=5,numCD=10)
+
+dnn<-sae.dnn.train(x=log(1+X),y=Y,hidden=c(5,5),activationfun = "tanh",learningrate = 0.0007,momentum = 0.9,learningrate_scale = 0.1,numepochs = 1000,batchsize = 256,visible_dropout = 0.5,hidden_dropout=0.5)
+
 
 darch<-newDArch(layers = c(93,512,512,9),batchSize = 128,ff=FALSE,genWeightFunc = generateWeights)
 setLayerWeights(darch,1)<-getWeights(rbm1)
