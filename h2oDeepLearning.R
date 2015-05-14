@@ -1,22 +1,16 @@
-otto_dir<-'/Dropbox/otto'
-trainDir <- paste0(path.expand("~"),otto_dir,'/train.csv')
-testDir <- paste0(path.expand("~"),otto_dir,'/test.csv')
-
-train = read.csv(trainDir,header=TRUE,stringsAsFactors = F)
-test = read.csv(testDir,header=TRUE,stringsAsFactors = F)
-
 library(h2o)
 localH2O = h2o.init(nthreads = -1, max_mem_size = "5g")
 
 getModel <- function(train){
-  for(i in 2:94){
+  train<-train[,-1];
+  for(i in 1:93){
     train[,i] <- as.numeric(train[,i])
     train[,i] <- sqrt(train[,i]+(3/8))
   }
 
   train.hex <- as.h2o(localH2O,train)
   
-  predictors <- 2:(ncol(train.hex)-1)
+  predictors <- 1:(ncol(train.hex)-1)
   response <- ncol(train.hex)
   
   model <- h2o.deeplearning(x=predictors,
@@ -38,10 +32,11 @@ getModel <- function(train){
   model;
 }
 getPrediction<-function(model,test){
-  for(i in 2:94){
+  test<-test[,-1];
+  for(i in 1:93){
     test[,i] <- as.numeric(test[,i])
     test[,i] <- sqrt(test[,i]+(3/8))
   }
-  test.hex <- as.h2o(localH2O,test[,2:94])
+  test.hex <- as.h2o(localH2O,test[,1:93])
   prediction<-as.data.frame(h2o.predict(model,test.hex))[,2:10]
 }
