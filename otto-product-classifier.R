@@ -43,17 +43,17 @@ model2_deep_feat_3<-extractFeature(3,model2,fold1)
 ####################################################################################
 
 crossValidateXgBoost(model1_deep_feat_1,FALSE,100,50)
-crossValidateXgBoost(model1_deep_feat_2,FALSE,100,25)
-crossValidateXgBoost(model1_deep_feat_3,FALSE,100,12)
+crossValidateXgBoost(model1_deep_feat_2,FALSE,20,12)
+crossValidateXgBoost(model1_deep_feat_3,FALSE,20,12)
 
-crossValidateXgBoost(model2_deep_feat_1,FALSE,100,50)
-crossValidateXgBoost(model2_deep_feat_2,FALSE,100,25)
-crossValidateXgBoost(model2_deep_feat_3,FALSE,100,12)
+crossValidateXgBoost(model2_deep_feat_1,FALSE,20,12)
+crossValidateXgBoost(model2_deep_feat_2,FALSE,20,12)
+crossValidateXgBoost(model2_deep_feat_3,FALSE,20,12)
 
-first_xg1<-GetXGModel(model1_deep_feat_1,FALSE,50,50)
-first_xg2<-GetXGModel(model1_deep_feat_2,FALSE,50,25)
-first_xg3<-GetXGModel(model1_deep_feat_3,FALSE,50,12)
+first_xg1<-GetXGModel(model1_deep_feat_1,FALSE,20,12)
+first_xg2<-GetXGModel(model1_deep_feat_2,FALSE,20,12)
+first_xg3<-GetXGModel(model1_deep_feat_3,FALSE,20,12)
 
-second_xg1<-GetXGModel(model2_deep_feat_1,FALSE,50,50)
-second_xg2<-GetXGModel(model2_deep_feat_2,FALSE,50,25)
-second_xg3<-GetXGModel(model2_deep_feat_3,FALSE,50,12)
+second_xg1<-GetXGModel(model2_deep_feat_1,FALSE,20,12)
+second_xg2<-GetXGModel(model2_deep_feat_2,FALSE,20,12)
+second_xg3<-GetXGModel(model2_deep_feat_3,FALSE,20,12)
