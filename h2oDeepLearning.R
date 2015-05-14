@@ -1,7 +1,27 @@
 library(h2o)
 localH2O = h2o.init(nthreads = -1, max_mem_size = "5g")
+column_bind<-function(data){
+  deepfeatures_layer<-cbind(data[,2:ncol(data)],
+                            data[,1]);
+  deepfeatures_layer;
+}
+extractFeature<-function(layerNumber,model,train){
+  train<-train[,-1]
+  for(i in 1:93){
+    train[,i] <- as.numeric(train[,i])
+    train[,i] <- sqrt(train[,i]+(3/8))
+  }
+  
+  train.hex <- as.h2o(localH2O,train)
+  deepfeatures_layer = h2o.deepfeatures(train.hex, model, layer = layerNumber)
+  deepfeatures_layerAsDataFrame<-as.data.frame(deepfeatures_layer);
+  deepfeatures_layer<-column_bind(deepfeatures_layerAsDataFrame);
+  deepfeatures_layer<-as.matrix(deepfeatures_layer);
+  deepfeatures_layer<-matrix(as.numeric(deepfeatures_layer),nrow(deepfeatures_layer),ncol(deepfeatures_layer))
+  deepfeatures_layer;
+}
 
-getModel <- function(train){
+getDeepModel <- function(train){
   train<-train[,-1];
   for(i in 1:93){
     train[,i] <- as.numeric(train[,i])
