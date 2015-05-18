@@ -1,14 +1,20 @@
 require(xgboost)
 require(methods)
 readCSV<-function(dir){
-  x = read.csv(dir,header=TRUE,stringsAsFactors = F)
-  x = x[,-ncol(x)]
-  x = as.matrix(x)
+  data = read.csv(dir,header=TRUE,stringsAsFactors = F)
+  y = data[,ncol(data)]
+  y = gsub('Class_','',y)
+  y = as.integer(y)-1 #xgboost take features in [0,numOfClass)
+  
+  x = as.matrix(data)
   x = matrix(as.numeric(x),nrow(x),ncol(x))
+  x[,ncol(x)] = y;
+  
+  colnames(x)<-colnames(data);
   x;
 }
-crossValidateXgBoost<-function(train,deleteFirstRow,nrounds,max_depth){
-  if(deleteFirstRow==T){
+crossValidateXgBoost<-function(train,deleteFirstCol,nrounds,max_depth){
+  if(deleteFirstCol==T){
     train<-train[,-1] 
   }
   y = train[,ncol(train)]
@@ -26,8 +32,8 @@ crossValidateXgBoost<-function(train,deleteFirstRow,nrounds,max_depth){
   bst.cv = xgb.cv(param=param, data = x, label = y, 
                   nfold = 5, nrounds=nrounds)
 }
-GetXGModel<- function(train,deleteFirstRow,nrounds,max_depth){
-  if(deleteFirstRow==T){
+GetXGModel<- function(train,deleteFirstCol,nrounds,max_depth){
+  if(deleteFirstCol==T){
     train<-train[,-1] 
   }
   y = train[,ncol(train)]

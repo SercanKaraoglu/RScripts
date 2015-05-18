@@ -1,61 +1,45 @@
-library(h2oEnsemble)
-library(SuperLearner)  # For metalearner such as "SL.glm"
-library(cvAUC)  # Used to calculate test set AUC (requires version >=1.0.1 of cvAUC)
+require(caret)
+getFolds<-function(data,fold){
+  return(list("train"=data[fold,],"test"=data[-fold,]))
+}
+getIndexes <- function(data,k){
+  y_data <- data[,ncol(data)]
+  folds<-createFolds(y=y_data,k = k,list=TRUE,returnTrain = TRUE)
+  fold<-folds$Fold01
+}
+fold2Indexes<-getIndexes(model1_deep_feat_1,10);
+fold2_extracted_feat1<-getFolds(model1_deep_feat_1,fold2Indexes)
+fold2_extracted_feat2<-getFolds(model1_deep_feat_2,fold2Indexes)
+fold2_extracted_feat3<-getFolds(model1_deep_feat_3,fold2Indexes)
 
-## Launch h2o on localhost, using all cores
-h2oServer = h2o.init(nthreads=-1)
+fold1Indexes<-getIndexes(model2_deep_feat_1,10);
+fold1_extracted_feat1<-getFolds(model2_deep_feat_1,fold1Indexes)
+fold1_extracted_feat2<-getFolds(model2_deep_feat_2,fold1Indexes)
+fold1_extracted_feat3<-getFolds(model2_deep_feat_3,fold1Indexes)
 
-## Point to directory where the Kaggle data is
-dir <- paste0(path.expand("~"), "/Dropbox/otto/")
+fold2_xg1<-GetXGModel(fold2_extracted_feat1$train,FALSE,20,6)
+fold2_xg2<-GetXGModel(fold2_extracted_feat2$train,FALSE,20,6)
+fold2_xg3<-GetXGModel(fold2_extracted_feat3$train,FALSE,20,6)
 
-## For Spark/Hadoop/YARN/Standalone operation on a cluster, follow instructions on http://h2o.ai/download/
-## Then connect to any cluster node from R
+fold1_xg1<-GetXGModel(fold1_extracted_feat1$train,FALSE,20,6)
+fold1_xg2<-GetXGModel(fold1_extracted_feat2$train,FALSE,20,6)
+fold1_xg3<-GetXGModel(fold1_extracted_feat3$train,FALSE,20,6)
 
-#h2oServer = h2o.init(ip="mr-0xd1",port=53322)
-#dir <- "hdfs://mr-0xd6/users/arno/h2o-kaggle/otto/"
+fold2_pred1<-makePrediction(fold2_first_xg1,fold2_extracted_feat1$test[,-ncol(fold2_extracted_feat1$test)])
+fold2_pred2<-makePrediction(fold2_first_xg2,fold2_extracted_feat2$test[,-ncol(fold2_extracted_feat2$test)])
+fold2_pred3<-makePrediction(fold2_first_xg3,fold2_extracted_feat3$test[,-ncol(fold2_extracted_feat3$test)])
 
+fold1_pred4<-makePrediction(fold1_second_xg1,fold1_extracted_feat1$test[,-ncol(fold1_extracted_feat1$test)])
+fold1_pred5<-makePrediction(fold1_second_xg2,fold1_extracted_feat2$test[,-ncol(fold1_extracted_feat2$test)])
+fold1_pred6<-makePrediction(fold1_second_xg3,fold1_extracted_feat3$test[,-ncol(fold1_extracted_feat3$test)])
 
-######################################################################
-## Step 3 - Import Data and create Train/Validation Splits
-######################################################################
-trainDir <- paste0(dir, "train.csv")
-testDir  <- paste0(dir, "test.csv")
-train.hex <- h2o.importFile(h2oServer,path=trainDir,key="train.hex")
-test.hex <- h2o.importFile(h2oServer,path=testDir,key="test.hex")
-dim(train.hex)
-summary(train.hex)
+preds_fold1<-cbind(fold1_pred4,fold1_pred5,fold1_pred6)
+preds_fold2<-cbind(fold2_pred1,fold2_pred2,fold2_pred3)
+preds_folds<-rbind(preds_fold1,preds_fold2)
 
-predictors <- 2:(ncol(train.hex)-1) #ignore first column 'id'
-response <- ncol(train.hex)
+actual_preds<-append(fold1_extracted_feat1$test[,ncol(fold1_extracted_feat1$test)],
+                    fold2_extracted_feat1$test[,ncol(fold2_extracted_feat1$test)])
 
-## Split into 80/20 Train/Validation
-rnd <- h2o.runif(train.hex)
-train_holdout.hex <- h2o.assign(train.hex[rnd<0.8,], "train_holdout.hex")
-valid_holdout.hex <- h2o.assign(train.hex[rnd>=0.8,], "valid_holdout.hex")
-
-h2o.gradientBoostedMachine.1 <- function(..., n.trees=42,interaction.depth=10,n.minobsinnode=10,shrinkage=0.175) h2o.gbm.wrapper(...,n.trees=n.trees,interaction.depth=interaction.depth,n.minobsinnode=n.minobsinnode,shrinkage=shrinkage)
-h2o.randomForest.1 <- function(..., ntree = 1000, nbins = 100, seed = 1) h2o.randomForest.wrapper(..., ntree = ntree, nbins = nbins, seed = seed)
-#h2o.deeplearning.1 <- function(..., hidden = c(512,512,512,512), activation = "Rectifier", seed = 1)  h2o.deeplearning.wrapper(..., hidden = hidden, activation = activation, seed = seed)
-
-#learner <- c("h2o.gradientBoostedMachine.1","h2o.randomForest.1", "h2o.deeplearning.1")
-learner <- c("h2o.gradientBoostedMachine.1","h2o.randomForest.1")
-family <- "binomial"
-
-# Train the ensemble using 4-fold CV to generate level-one data
-# More CV folds will take longer to train, but should increase performance
-fit <- h2o.ensemble(x = predictors, 
-                    y = response, 
-                    data = train_holdout.hex, 
-                    family = family, 
-                    learner = learner,
-                    cvControl = list(V=4,shuffle=TRUE),
-                    seed=TRUE,
-                    parallel="seq")
-
-# Generate predictions on the test set
-pred <- predict(fit, valid_holdout.hex)
-labels <- as.data.frame(newdata[,c(y)])[,1]
-
-
-# Ensemble test AUC 
-AUC(predictions=as.data.frame(pred$pred)[,1], labels=labels)
+metaTrainSet <- cbind(preds_folds,actual_preds)
+crossValidateXgBoost(metaTrainSet,FALSE,20,6)
+metaXG<-GetXGModel(metaTrainSet,FALSE,20,6)

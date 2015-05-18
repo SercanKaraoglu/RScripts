@@ -13,9 +13,9 @@ extractFeature<-function(layerNumber,model,train){
   }
   
   train.hex <- as.h2o(localH2O,train)
+  
   deepfeatures_layer = h2o.deepfeatures(train.hex, model, layer = layerNumber)
-  deepfeatures_layerAsDataFrame<-as.data.frame(deepfeatures_layer);
-  deepfeatures_layer<-column_bind(deepfeatures_layerAsDataFrame);
+  deepfeatures_layer<-as.data.frame(deepfeatures_layer);
   deepfeatures_layer<-as.matrix(deepfeatures_layer);
   deepfeatures_layer<-matrix(as.numeric(deepfeatures_layer),nrow(deepfeatures_layer),ncol(deepfeatures_layer))
   deepfeatures_layer;
