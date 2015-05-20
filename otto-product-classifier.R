@@ -57,21 +57,21 @@ model2_deep_feat_3<-column_bind(model2_deep_feat_3);
 ##Classification with Extracted Features
 ####################################################################################
 
-# crossValidateXgBoost(model1_deep_feat_1,FALSE,40,6)
-# crossValidateXgBoost(model1_deep_feat_2,FALSE,40,6)
-# crossValidateXgBoost(model1_deep_feat_3,FALSE,40,6)
-# 
-# crossValidateXgBoost(model2_deep_feat_1,FALSE,40,6)
-# crossValidateXgBoost(model2_deep_feat_2,FALSE,40,6)
-# crossValidateXgBoost(model2_deep_feat_3,FALSE,40,6)
+crossValidateXgBoost(model1_deep_feat_1,FALSE,40,15)
+crossValidateXgBoost(model1_deep_feat_2,FALSE,40,15)
+crossValidateXgBoost(model1_deep_feat_3,FALSE,40,15)
+ 
+crossValidateXgBoost(model2_deep_feat_1,FALSE,40,15)
+crossValidateXgBoost(model2_deep_feat_2,FALSE,40,15)
+crossValidateXgBoost(model2_deep_feat_3,FALSE,40,15)
 
-first_xg1<-GetXGModel(model1_deep_feat_1,FALSE,40,6)
-first_xg2<-GetXGModel(model1_deep_feat_2,FALSE,40,6)
-first_xg3<-GetXGModel(model1_deep_feat_3,FALSE,40,6)
+first_xg1<-GetXGModel(model1_deep_feat_1,FALSE,40,15)
+first_xg2<-GetXGModel(model1_deep_feat_2,FALSE,40,15)
+first_xg3<-GetXGModel(model1_deep_feat_3,FALSE,40,15)
 
-second_xg1<-GetXGModel(model2_deep_feat_1,FALSE,40,6)
-second_xg2<-GetXGModel(model2_deep_feat_2,FALSE,40,6)
-second_xg3<-GetXGModel(model2_deep_feat_3,FALSE,40,6)
+second_xg1<-GetXGModel(model2_deep_feat_1,FALSE,40,15)
+second_xg2<-GetXGModel(model2_deep_feat_2,FALSE,40,15)
+second_xg3<-GetXGModel(model2_deep_feat_3,FALSE,40,15)
 
 testDir <- paste0(path.expand("~"),otto_dir,'/test.csv')
 test<-readCSV(testDir);
@@ -94,8 +94,4 @@ pred6<-makePrediction(second_xg3,test_model2_deep_feat_3)
 
 preds <- mget( paste0( "pred" , 1:6 ) )
 do.call( rbind , preds )
-#writeSubmissionByAveraging(preds)
-primitiveModel<-GetXGModel(readCSV(trainDir),TRUE,160,12);
-primitivePreds<-makePrediction(primitiveModel,test)
-View(primitivePreds)
-writeSubmissionByEnsembling();
+writeSubmissionByAveraging(preds)

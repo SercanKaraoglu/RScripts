@@ -14,7 +14,7 @@ x = train[,-ncol(train)]
 x = as.matrix(x)
 x = matrix(as.numeric(x),nrow(x),ncol(x))
 features<-x[,2:94];
-more_features<-cbind(x,cbind(sqrt(features),log(1+features, base = exp(1))),y)
+more_features<-scale(cbind(sqrt(features),log(1+features, base = exp(1))));
 folds<-createFolds(y=y,k = 2,list=TRUE,returnTrain = TRUE)
 fold<-folds$Fold1
 X<-more_features[fold,]; Xt<-more_features[-fold,]

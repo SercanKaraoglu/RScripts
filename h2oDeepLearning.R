@@ -1,5 +1,5 @@
 library(h2o)
-dockerH2O <- h2o.init(ip = "172.17.0.4", port=54321)
+localH2O <- h2o.init(ip = "localhost", port=54321)
 column_bind<-function(data){
   deepfeatures_layer<-cbind(data[,2:ncol(data)],
                             data[,1]);
@@ -7,11 +7,7 @@ column_bind<-function(data){
 }
 extractFeature<-function(layerNumber,model,train){
   train<-train[,-1]
-#   for(i in 1:93){
-#     train[,i] <- as.numeric(train[,i])
-#     train[,i] <- sqrt(train[,i]+(3/8))
-#   }
-  
+
   train.hex <- as.h2o(localH2O,train)
   
   deepfeatures_layer = h2o.deepfeatures(train.hex, model, layer = layerNumber)
@@ -23,10 +19,6 @@ extractFeature<-function(layerNumber,model,train){
 
 getDeepModel <- function(train){
   train<-train[,-1];
-#   for(i in 1:93){
-#     train[,i] <- as.numeric(train[,i])
-#     train[,i] <- sqrt(train[,i]+(3/8))
-#   }
 
   train.hex <- as.h2o(localH2O,train)
   
