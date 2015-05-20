@@ -1,5 +1,5 @@
 library(h2o)
-localH2O = h2o.init(nthreads = -1, max_mem_size = "5g")
+dockerH2O <- h2o.init(ip = "172.17.0.4", port=54321)
 column_bind<-function(data){
   deepfeatures_layer<-cbind(data[,2:ncol(data)],
                             data[,1]);
@@ -7,10 +7,10 @@ column_bind<-function(data){
 }
 extractFeature<-function(layerNumber,model,train){
   train<-train[,-1]
-  for(i in 1:93){
-    train[,i] <- as.numeric(train[,i])
-    train[,i] <- sqrt(train[,i]+(3/8))
-  }
+#   for(i in 1:93){
+#     train[,i] <- as.numeric(train[,i])
+#     train[,i] <- sqrt(train[,i]+(3/8))
+#   }
   
   train.hex <- as.h2o(localH2O,train)
   
@@ -23,10 +23,10 @@ extractFeature<-function(layerNumber,model,train){
 
 getDeepModel <- function(train){
   train<-train[,-1];
-  for(i in 1:93){
-    train[,i] <- as.numeric(train[,i])
-    train[,i] <- sqrt(train[,i]+(3/8))
-  }
+#   for(i in 1:93){
+#     train[,i] <- as.numeric(train[,i])
+#     train[,i] <- sqrt(train[,i]+(3/8))
+#   }
 
   train.hex <- as.h2o(localH2O,train)
   
@@ -55,7 +55,7 @@ getPrediction<-function(model,test){
   test<-test[,-1];
   for(i in 1:93){
     test[,i] <- as.numeric(test[,i])
-    test[,i] <- sqrt(test[,i]+(3/8))
+#   test[,i] <- sqrt(test[,i]+(3/8))
   }
   test.hex <- as.h2o(localH2O,test[,1:93])
   prediction<-as.data.frame(h2o.predict(model,test.hex))[,2:10]

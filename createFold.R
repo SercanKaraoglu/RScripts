@@ -13,9 +13,9 @@ y = as.integer(y)-1 #xgboost take features in [0,numOfClass)
 x = train[,-ncol(train)]
 x = as.matrix(x)
 x = matrix(as.numeric(x),nrow(x),ncol(x))
-
+features<-x[,2:94];
+more_features<-cbind(x,cbind(sqrt(features),log(1+features, base = exp(1))),y)
 folds<-createFolds(y=y,k = 2,list=TRUE,returnTrain = TRUE)
 fold<-folds$Fold1
-X<-x[fold,]; Xt<-x[-fold,]
+X<-more_features[fold,]; Xt<-more_features[-fold,]
 Y<-y[fold]; Yt<-y[-fold]
-
