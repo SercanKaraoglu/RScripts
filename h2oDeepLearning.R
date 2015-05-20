@@ -1,5 +1,5 @@
 library(h2o)
-localH2O <- h2o.init(ip = "localhost", port=54321)
+localH2O <- h2o.init(ip = "localhost", port=54321,nthreads = -1)
 column_bind<-function(data){
   deepfeatures_layer<-cbind(data[,2:ncol(data)],
                             data[,1]);
