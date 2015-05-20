@@ -1,4 +1,8 @@
-# Output submission
+source('~/git/RScripts/loadMyData.R')
+source('~/git/RScripts/createFold.R')
+source('~/git/RScripts/h2oDeepLearning.R')
+source('~/git/RScripts/GetXgBoost.R')
+
 getSubmissionFormat <- function(submissionDir){
   submission <- read.csv(submissionDir)
   submission[,2:10] <- 0
@@ -25,11 +29,10 @@ writeSubmissionByEnsembling <- function(){
   View(submission[,2:10])
   write.csv(submission,file=submissionDir,row.names=FALSE)
 }
-fold1<-cbind(X,Y)
-colnames(fold1)<-colnames(train)
 
-fold2<-cbind(Xt,Yt)
-colnames(fold2)<-colnames(fold1)
+folds<-createFold(train,2)
+fold1<-folds$fold1$train
+fold2<-folds$fold2$train
 
 model1<-getDeepModel(fold1)
 model2<-getDeepModel(fold2)
@@ -73,8 +76,8 @@ second_xg1<-GetXGModel(model2_deep_feat_1,FALSE,40,15)
 second_xg2<-GetXGModel(model2_deep_feat_2,FALSE,40,15)
 second_xg3<-GetXGModel(model2_deep_feat_3,FALSE,40,15)
 
-testDir <- paste0(path.expand("~"),otto_dir,'/test.csv')
-test<-readCSV(testDir);
+transformated<-transform(forPrediction=TRUE,test);
+test<-transformated@x
 
 test_model1_deep_feat_1<-extractFeature(1,model1,test)
 test_model1_deep_feat_2<-extractFeature(2,model1,test)

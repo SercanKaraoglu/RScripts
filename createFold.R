@@ -1,21 +1,30 @@
 require(caret)
-otto_dir<-'/Dropbox/otto'
-trainDir <- paste0(path.expand("~"),otto_dir,'/train.csv')
-train = read.csv(trainDir,header=TRUE,stringsAsFactors = F)
-
-testDir <- paste0(path.expand("~"),otto_dir,'/test.csv')
-test = read.csv(testDir,header=TRUE,stringsAsFactors = F)
-
-y = train[,ncol(train)]
-y = gsub('Class_','',y)
-y = as.integer(y)-1 #xgboost take features in [0,numOfClass)
-
-x = train[,-ncol(train)]
-x = as.matrix(x)
-x = matrix(as.numeric(x),nrow(x),ncol(x))
-features<-x[,2:94];
-more_features<-scale(cbind(sqrt(features),log(1+features, base = exp(1))));
-folds<-createFolds(y=y,k = 2,list=TRUE,returnTrain = TRUE)
-fold<-folds$Fold1
-X<-more_features[fold,]; Xt<-more_features[-fold,]
-Y<-y[fold]; Yt<-y[-fold]
+createFold<-function(train,k){
+  transformated<-transform(forPrediction=FALSE,train);
+  more_features<-transformated@x;
+  y<-transformated@y;
+  folds<-createFolds(y=y,k = k,list=TRUE,returnTrain = TRUE)
+  values = list()
+  i<-1;
+  for(fold in folds){
+    X<-more_features[fold,]; Xt<-more_features[-fold,]
+    Y<-y[fold]; Yt<-y[-fold]
+    
+    train_of_fold<-cbind(X,Y);
+    test_of_fold<-cbind(Xt,Yt);
+    
+    colNames<-paste0("feat_",1:(ncol(train_of_fold)-1))
+    colNames<-append(colNames,"target")
+    
+    colnames(train_of_fold)<-colNames
+    colnames(test_of_fold)<-colNames
+    key<-paste0("fold",i);
+    print(key)
+    values[[key]]$train<-train_of_fold;
+    values[[key]]$test<-test_of_fold;
+    
+    i<-i+1;
+    
+  }
+  return(values)
+}
