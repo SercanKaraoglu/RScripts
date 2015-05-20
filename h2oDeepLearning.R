@@ -6,8 +6,6 @@ column_bind<-function(data){
   deepfeatures_layer;
 }
 extractFeature<-function(layerNumber,model,train){
-  train<-train[,-1]
-
   train.hex <- as.h2o(localH2O,train)
   
   deepfeatures_layer = h2o.deepfeatures(train.hex, model, layer = layerNumber)
@@ -18,8 +16,6 @@ extractFeature<-function(layerNumber,model,train){
 }
 
 getDeepModel <- function(train){
-  train<-train[,-1];
-
   train.hex <- as.h2o(localH2O,train)
   
   predictors <- 1:(ncol(train.hex)-1)
@@ -44,11 +40,10 @@ getDeepModel <- function(train){
   model;
 }
 getPrediction<-function(model,test){
-  test<-test[,-1];
-  for(i in 1:93){
+  for(i in 1:ncol(test)){
     test[,i] <- as.numeric(test[,i])
 #   test[,i] <- sqrt(test[,i]+(3/8))
   }
-  test.hex <- as.h2o(localH2O,test[,1:93])
+  test.hex <- as.h2o(localH2O,test[,1:ncol(test)])
   prediction<-as.data.frame(h2o.predict(model,test.hex))[,2:10]
 }
