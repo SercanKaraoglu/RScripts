@@ -27,7 +27,7 @@ crossValidateXgBoost<-function(train,deleteFirstCol,nrounds,max_depth){
                 "eta" = 0.25,
                 "max_depth"=max_depth,
                 "num_class" = 9,
-                "nthread" = 3)
+                "nthread" = 6)
   
   bst.cv = xgb.cv(param=param, data = x, label = y, 
                   nfold = 5, nrounds=nrounds)

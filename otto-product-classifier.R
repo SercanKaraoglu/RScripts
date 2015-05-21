@@ -60,13 +60,13 @@ model2_deep_feat_3<-column_bind(model2_deep_feat_3);
 ##Classification with Extracted Features
 ####################################################################################
 
-crossValidateXgBoost(model1_deep_feat_1,FALSE,40,15)
+crossValidateXgBoost(model1_deep_feat_1,FALSE,400,12)
 crossValidateXgBoost(model1_deep_feat_2,FALSE,40,15)
 crossValidateXgBoost(model1_deep_feat_3,FALSE,40,15)
  
 crossValidateXgBoost(model2_deep_feat_1,FALSE,40,15)
 crossValidateXgBoost(model2_deep_feat_2,FALSE,40,15)
-crossValidateXgBoost(model2_deep_feat_3,FALSE,40,15)
+crossValidateXgBoost(model2_deep_feat_3,FALSE,400,15)
 
 first_xg1<-GetXGModel(model1_deep_feat_1,FALSE,40,15)
 first_xg2<-GetXGModel(model1_deep_feat_2,FALSE,40,15)

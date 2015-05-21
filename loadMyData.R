@@ -39,7 +39,7 @@ setMethod(f="forPrediction",
           }
 )
 transform <- function (forPrediction=FALSE, data) {
-  helper_transform <- function () {
+  helper_transform <- function (x) {
     x = as.matrix(x)
     x = matrix(as.numeric(x),nrow(x),ncol(x))
     features<-x[,2:ncol(x)];
@@ -47,14 +47,12 @@ transform <- function (forPrediction=FALSE, data) {
   }
   
   if(forPrediction==TRUE){
-    return(DataContainer(x=helper_transform(),y=1));
+    return(DataContainer(x=helper_transform(data),y=1));
   }else{
     y = data[,ncol(data)]
     y = gsub('Class_','',y)
     y = as.integer(y)-1 #xgboost take features in [0,numOfClass)
     
-    x = data[,-ncol(data)]
-    
-    return(DataContainer(x=helper_transform(),y=y)); 
+    return(DataContainer(x=helper_transform(data[,-ncol(data)]),y=y)); 
   }
 }
