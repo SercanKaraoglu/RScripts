@@ -10,7 +10,7 @@ source("~/git/RScripts/WestNile/loadWestNileData.R")
 # Set necessary parameter
 param <- list("objective" = "binary:logistic",
               "eval_metric" = "auc",
-              "eta" = 0.25,
+              "eta" = 0.20,
               "max_depth"=3,
               "nthread" = 2)
 nrounds<-65
@@ -39,5 +39,7 @@ submissionFile<-cbind(test$Id,pSubmit)
 colnames(submissionFile)<-c("Id","WnvPresent")
 options("scipen"=100, "digits"=8)
 write.csv(submissionFile,submissionDir,row.names=FALSE,quote=FALSE)
-
-
+lasagneSubmissionDir<-paste0(root_dir,"lasagne_west_nile.csv")
+lasagneSubmission<-read.csv(lasagneSubmissionDir)
+submissionFile[,2]<-(pSubmit+lasagneSubmission[,2])/2
+write.csv(submissionFile,submissionDir,row.names=FALSE,quote=FALSE)

@@ -17,28 +17,28 @@ x[,Species:=vSpecies[1:nrow(x)]]
 test[,Species:=vSpecies[(nrow(x)+1):length(vSpecies)]]
 
 ## also add some fields for components of the date using simple substrings
-x[,dMonth:=as.factor(paste(substr(x$Date,6,7)))]
+x[,dMonth:=as.numeric(as.factor(paste(substr(x$Date,6,7))))]
 x[,dYear:=as.factor(paste(substr(x$Date,1,4)))]
 x$Date = as.Date(x$Date, format="%Y-%m-%d")
 xsDate = as.Date(paste0(x$dYear, "0101"), format="%Y%m%d")
 x$dWeek = as.numeric(paste(floor((x$Date - xsDate + 1)/7)))
 
-test[,dMonth:=as.factor(paste(substr(test$Date,6,7)))]
+test[,dMonth:=as.numeric(as.factor(paste(substr(test$Date,6,7))))]
 test[,dYear:=as.factor(paste(substr(test$Date,1,4)))]
 test$Date = as.Date(test$Date, format="%Y-%m-%d")
 tsDate = as.Date(paste0(test$dYear, "0101"), format="%Y%m%d")
 test$dWeek = as.numeric(paste(floor((test$Date - tsDate + 1)/7)))
 
 # we'll set aside 2011 data as test, and train on the remaining
-my.x = data.frame(x[,list(WnvPresent, dWeek, Species, Latitude, Longitude)])
+my.x = data.frame(x[,list(WnvPresent, dWeek, dMonth, Species, Latitude, Longitude)])
 x1<-my.x[x$dYear!=2011,]
 x2<-my.x[x$dYear==2011,]
-props<-c("dWeek","Species","Latitude","Longitude");
+props<-c("dWeek","dMonth","Species","Latitude","Longitude");
 xAsMatrix<-as.matrix(my.x[,props],rownames.force = FALSE)
 x1AsMatrix<-as.matrix(x1[,props],rownames.force = FALSE)
 x2AsMatrix<-as.matrix(x2[,props],rownames.force = FALSE)
 
-testAsMatrix = data.frame(test[,list(dWeek, Species, Latitude, Longitude)])
+testAsMatrix = data.frame(test[,list(dWeek, dMonth, Species, Latitude, Longitude)])
 testAsMatrix<-as.matrix(testAsMatrix[,props],rownames.force = FALSE)
 
 y1<-as.numeric(x1[,"WnvPresent"]);
