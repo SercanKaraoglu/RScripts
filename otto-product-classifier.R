@@ -34,8 +34,8 @@ folds<-createFold(train,2)
 fold1<-folds$fold1$train
 fold2<-folds$fold2$train
 
-model1<-getDeepModel(fold1)
-model2<-getDeepModel(fold2)
+model1<-getDeepModel(fold1,isClassification=TRUE)
+model2<-getDeepModel(fold2,isClassification=TRUE)
 ####################################################################################
 ##Extract Features
 ####################################################################################
@@ -59,22 +59,28 @@ model2_deep_feat_3<-column_bind(model2_deep_feat_3);
 ####################################################################################
 ##Classification with Extracted Features
 ####################################################################################
+param <- list("objective" = "multi:softprob",
+              "eval_metric" = "mlogloss",
+              "eta" = 0.25,
+              "max_depth"=12,
+              "num_class" = 9,
+              "nthread" = 6)
 
-crossValidateXgBoost(model1_deep_feat_1,FALSE,40,12)
-crossValidateXgBoost(model1_deep_feat_2,FALSE,40,15)
-crossValidateXgBoost(model1_deep_feat_3,FALSE,40,15)
+crossValidateXgBoost(model1_deep_feat_1,FALSE,param,40)
+crossValidateXgBoost(model1_deep_feat_2,FALSE,param,40)
+crossValidateXgBoost(model1_deep_feat_3,FALSE,param,40)
  
-crossValidateXgBoost(model2_deep_feat_1,FALSE,40,15)
-crossValidateXgBoost(model2_deep_feat_2,FALSE,40,15)
-crossValidateXgBoost(model2_deep_feat_3,FALSE,400,15)
+crossValidateXgBoost(model2_deep_feat_1,FALSE,param,40)
+crossValidateXgBoost(model2_deep_feat_2,FALSE,param,40)
+crossValidateXgBoost(model2_deep_feat_3,FALSE,param,40)
 
-first_xg1<-GetXGModel(model1_deep_feat_1,FALSE,40,15)
-first_xg2<-GetXGModel(model1_deep_feat_2,FALSE,40,15)
-first_xg3<-GetXGModel(model1_deep_feat_3,FALSE,40,15)
+first_xg1<-GetXGModel(model1_deep_feat_1,FALSE,param,40)
+first_xg2<-GetXGModel(model1_deep_feat_2,FALSE,param,40)
+first_xg3<-GetXGModel(model1_deep_feat_3,FALSE,param,40)
 
-second_xg1<-GetXGModel(model2_deep_feat_1,FALSE,40,15)
-second_xg2<-GetXGModel(model2_deep_feat_2,FALSE,40,15)
-second_xg3<-GetXGModel(model2_deep_feat_3,FALSE,40,15)
+second_xg1<-GetXGModel(model2_deep_feat_1,FALSE,param,40)
+second_xg2<-GetXGModel(model2_deep_feat_2,FALSE,param,40)
+second_xg3<-GetXGModel(model2_deep_feat_3,FALSE,param,40)
 
 transformated<-transform(forPrediction=TRUE,test);
 test<-transformated@x

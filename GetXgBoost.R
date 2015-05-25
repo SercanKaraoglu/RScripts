@@ -13,7 +13,7 @@ readCSV<-function(dir){
   colnames(x)<-colnames(data);
   x;
 }
-crossValidateXgBoost<-function(train,deleteFirstCol,nrounds,max_depth){
+crossValidateXgBoost<-function(train,deleteFirstCol,param, nrounds){
   if(deleteFirstCol==T){
     train<-train[,-1] 
   }
@@ -22,29 +22,17 @@ crossValidateXgBoost<-function(train,deleteFirstCol,nrounds,max_depth){
   x = train[,-ncol(train)];
   
   # Set necessary parameter
-  param <- list("objective" = "multi:softprob",
-                "eval_metric" = "mlogloss",
-                "eta" = 0.25,
-                "max_depth"=max_depth,
-                "num_class" = 9,
-                "nthread" = 6)
   
   bst.cv = xgb.cv(param=param, data = x, label = y, 
                   nfold = 5, nrounds=nrounds)
 }
-GetXGModel<- function(train,deleteFirstCol,nrounds,max_depth){
+GetXGModel<- function(train,deleteFirstCol,param, nrounds){
   if(deleteFirstCol==T){
     train<-train[,-1] 
   }
   y = train[,ncol(train)]
   x = train[,-ncol(train)];
-  # Set necessary parameter
-  param <- list("objective" = "multi:softprob",
-                "eval_metric" = "mlogloss",
-                "eta" = 0.25,
-                "max_depth"=max_depth,
-                "num_class" = 9,
-                "nthread" = 3)
+
   bst = xgboost(param=param, data = x, label = y, nrounds=nrounds)
   bst;
 }

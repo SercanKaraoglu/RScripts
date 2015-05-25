@@ -1,5 +1,5 @@
 library(h2o)
-localH2O <- h2o.init(ip = "localhost", port=54321, nthreads = -1)
+localH2O <- h2o.init(ip = "localhost", port=54321, nthreads = 6)
 column_bind<-function(data){
   deepfeatures_layer<-cbind(data[,2:ncol(data)],
                             data[,1]);
@@ -14,8 +14,8 @@ extractFeature<-function(layerNumber,model,train){
   deepfeatures_layer<-matrix(as.numeric(deepfeatures_layer),nrow(deepfeatures_layer),ncol(deepfeatures_layer))
   deepfeatures_layer;
 }
-
-getDeepModel <- function(train){
+#isClassification false ise regression yapılacak
+getDeepModel <- function(train,isClassification){
   train.hex <- as.h2o(localH2O,train)
   
   predictors <- 1:(ncol(train.hex)-1)
@@ -24,17 +24,18 @@ getDeepModel <- function(train){
   model <- h2o.deeplearning(x=predictors,
                             y=response,
                             data=train.hex,
-                            classification=T,
+                            classification=isClassification,
                             activation="RectifierWithDropout",
-                            hidden=c(1024,512,256),
-                            hidden_dropout_ratio=c(0.5,0.5,0.5),
+                            hidden=c(256,256,1),
+                            hidden_dropout_ratio=c(0.4,0.4,0.4),
                             input_dropout_ratio=0.05,
                             epochs=50,
                             l1=1e-5,
                             l2=1e-5,
-                            rho=0.99,
+                            rho=0.9,
                             epsilon=1e-8,
-                            train_samples_per_iteration=2000,
+                            train_samples_per_iteration=500,
+                            nesterov_accelerated_gradient=TRUE,
                             max_w2=10,
                             seed=1)
   model;

@@ -1,10 +1,3 @@
-otto_dir<-'/Dropbox/otto'
-trainDir <- paste0(path.expand("~"),otto_dir,'/train.csv')
-train = read.csv(trainDir,header=TRUE,stringsAsFactors = F)
-
-testDir <- paste0(path.expand("~"),otto_dir,'/test.csv')
-test = read.csv(testDir,header=TRUE,stringsAsFactors = F)
-
 DataContainer <- setClass(
   # Set the name for the class
   "DataContainer",
@@ -46,25 +39,18 @@ transform <- function (forPrediction=FALSE, data) {
     scaledTraindata <-  predict(procValues, x)
     return(scaledTraindata);
   }
-  y = -1;
-  x = data;
-  
-  if(forPrediction!=TRUE){
-    x = data[,-ncol(data)]
-    y = data[,ncol(data)]
-    y = gsub('Class_','',y)
-    y = as.integer(y)-1 #xgboost take features in [0,numOfClass)
-  }
+  x = data[,-ncol(data)]
   x = as.matrix(x)
   x = matrix(as.numeric(x),nrow(x),ncol(x))
-  features<-x[,2:ncol(x)];
+  
+  y = data[,ncol(data)]
   
   if(forPrediction!=TRUE){
     assign("procValues", 
-           preProcess(features, method = c("ica"),n.comp=2), 
+           preProcess(x, method = c("ica"),n.comp=2), 
            envir = .GlobalEnv);
   }
-  scaled <- predict(procValues, features)
+  scaled <- predict(procValues, x)
   return(DataContainer(x=scaled, y=y)); 
   
 }
